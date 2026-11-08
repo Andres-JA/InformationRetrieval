@@ -1,0 +1,18 @@
+# Corpus de Project Gutenberg (aprox. 28 GB).
+# Se descarga aparte y no se versiona en el repositorio.
+notebooks/epub/
+
+# Entornos y caché de Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# Artefactos temporales
+*.pkl
+*.log
