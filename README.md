@@ -1,8 +1,8 @@
 # Recuperación de Información
 
-Prácticas de Recuperación de Información sobre el corpus de libros del Proyecto Gutenberg. El repositorio reúne tres notebooks que recorren, de forma progresiva, el preprocesamiento de texto, la indexación, la búsqueda booleana, la representación vectorial y el ranking de documentos.
+Prácticas de Recuperación de Información sobre el corpus del Proyecto Gutenberg: preprocesamiento, indexación, búsqueda booleana, representación vectorial y ranking con TF-IDF y BM25.
 
-## Estructura del proyecto
+## Estructura
 
 ```
 InformationRetrieval/
@@ -12,67 +12,60 @@ InformationRetrieval/
     ├── 01_revml.ipynb
     ├── 02_booleansearch.ipynb
     ├── 03_vectorsearch.ipynb
+    ├── 04_bm25.ipynb
     └── epub/                 # corpus de Gutenberg (no versionado)
         └── <id>/pg<id>.txt
 ```
 
 ## Notebooks
 
-### `01_revml.ipynb` — Repaso práctico de Machine Learning
+### `01_revml.ipynb` — Repaso de Machine Learning
 
-Repasa los fundamentos de Machine Learning antes de entrar en Recuperación de Información.
+- Iris: análisis exploratorio y comparación de siete clasificadores con escalado, validación y matrices de confusión.
+- Diabetes: comparación de modelos de regresión con MAE, RMSE y R², y análisis del efecto de Ridge y Lasso.
 
-- Explora el dataset Iris y presenta una tabla y un gráfico de distribución de clases.
-- Compara siete clasificadores (Naive Bayes, regresión logística, SVM lineal, árbol, Random Forest, Gradient Boosting y MLP) con particiones de entrenamiento, validación y prueba.
-- Usa escalamiento ajustado solo con entrenamiento, matrices de confusión y análisis de errores.
-- Compara modelos de regresión sobre el dataset Diabetes (lineal, Ridge, Lasso, kNN, árbol, Random Forest, Gradient Boosting y MLP) con MAE, RMSE y R², gráficos de valores reales frente a predicciones y residuos.
-- Analiza el efecto de la regularización en Ridge y Lasso y responde preguntas de interpretación.
+### `02_booleansearch.ipynb` — Procesamiento, búsqueda secuencial e indexación
 
-### `02_booleansearch.ipynb` — Procesamiento de texto, recuperación secuencial e indexación
+- Corpus NLTK (18 libros): normalización, tokenización, búsqueda secuencial e índice invertido.
+- Consultas booleanas con `AND`, `OR`, `NOT` y paréntesis.
+- Corpus `epub`: deduplicación, muestra reproducible de 1.000 documentos y comparación de tiempos entre búsqueda secuencial e indexada.
+- Análisis de escalabilidad con 50, 100, 250, 500 y 1.000 documentos.
 
-Implementa y compara dos mecanismos de recuperación sobre libros de Project Gutenberg.
+### `03_vectorsearch.ipynb` — Búsqueda vectorial con TF-IDF
 
-- **Parte A (corpus pequeño):** carga los 18 documentos de Gutenberg incluidos en NLTK, define una configuración de normalización y tokenización, implementa búsqueda secuencial con dos lazos anidados y mide tiempos con 30 repeticiones.
-- Construye un índice invertido, inspecciona listas de postings y calcula la frecuencia documental (DF) de varios términos.
-- Implementa consultas booleanas con `AND`, `OR`, `NOT` y paréntesis.
-- **Parte B (corpus grande):** trabaja con los archivos `pg*.txt` de `notebooks/epub/`, deduplica por título y autor, toma una muestra reproducible de 1.000 documentos (`random_state=42`) y repite las búsquedas secuenciales y con índice.
-- **Parte C:** analiza la escalabilidad con subconjuntos de 50, 100, 250, 500 y 1.000 documentos, ajusta funciones de tiempo por mínimos cuadrados y compara los dos métodos.
+- Cálculo de TF, DF, IDF y los seis pesos TF-IDF.
+- Matriz documento-término dispersa, verificada contra `TfidfVectorizer`.
+- Similitud coseno y presentación del top-5 por consulta.
+- Introducción a BM25 y comparación de sus rankings con TF-IDF.
 
-### `03_vectorsearch.ipynb` — Búsqueda vectorial con TF-IDF y BM25
+### `04_bm25.ipynb` — BM25
 
-Construye representaciones vectoriales y rankings sobre el corpus `epub`, reutilizando el preprocesamiento y la muestra de la práctica 02.
-
-- Recupera y revisa el corpus: tabla de **identificador, título y número de términos únicos**, número de documentos, tamaño del vocabulario y longitudes mínima, media y máxima.
-- Implementa explícitamente TF, DF, IDF y los seis pesos TF-IDF (TF `raw`, `log`, `augmented` × IDF clásica y `+1`).
-- Construye la matriz documento-término TF-IDF en formato disperso y la verifica contra `TfidfVectorizer` (máxima diferencia absoluta `0.0`).
-- Define cuatro consultas, construye sus vectores con el vocabulario y los IDF del corpus y calcula la similitud coseno mediante producto punto y normas, comparándola con `sklearn.metrics.pairwise.cosine_similarity`.
-- Presenta el top-5 de cada consulta con identificador, título, puntuación y fragmento del texto original.
-- Implementa BM25, explica sus componentes (`k1`, `b`, IDF y normalización por longitud) y compara sus rankings con los de TF-IDF.
+- Implementación de BM25 (`k1=1.2`, `b=0.75`) y comparación con TF-IDF + coseno en ocho consultas.
+- Intersección de los top-10, tamaño de las listas y primer resultado de cada método.
+- Análisis del aporte de cada término (`|d|`, `f(t,d)`, `df(t)`) y efecto de los parámetros `k1` y `b`.
 
 ## Corpus `notebooks/epub/`
 
-La carpeta `notebooks/epub/` contiene 78.145 archivos `pg*.txt` descargados del Proyecto Gutenberg (unos 28 GB). Por su tamaño **no se versiona**: está incluida en `.gitignore`. Los notebooks 02 y 03 la leen directamente desde disco, deduplican por título y autor y trabajan con una muestra aleatoria reproducible de 1.000 documentos para que los experimentos sean tratables en memoria. Cada documento conserva su identificador original de Gutenberg.
+Contiene 78.145 archivos `pg*.txt` del Proyecto Gutenberg (unos 28 GB). Por su tamaño **no se versiona** y está incluido en `.gitignore`. Los notebooks 02–04 deduplican por título y autor y trabajan con una muestra aleatoria reproducible de 1.000 documentos (`random_state=42`), conservando el identificador original de cada libro.
 
 ## Requisitos
 
 - Python 3.10 o superior.
 - `numpy`, `pandas`, `scipy`, `scikit-learn`, `matplotlib`, `nltk` y `jupyter`.
 
-Instalación sugerida:
-
 ```bash
 pip install numpy pandas scipy scikit-learn matplotlib nltk jupyter
 ```
 
-## Cómo ejecutar
+## Ejecución
 
 Desde la raíz del proyecto:
 
 ```bash
-jupyter notebook notebooks/03_vectorsearch.ipynb
+jupyter notebook notebooks/04_bm25.ipynb
 ```
 
-Los notebooks 02 y 03 buscan la carpeta `epub` tanto en el directorio de trabajo como en `notebooks/epub`, por lo que pueden ejecutarse desde la raíz del proyecto o desde la carpeta `notebooks/`. La primera ejecución del notebook 03 tarda alrededor de un minuto porque lee y tokeniza los 1.000 documentos; las siguientes celdas trabajan con la representación dispersa ya construida.
+Los notebooks buscan la carpeta `epub` en el directorio de trabajo o en `notebooks/epub`, por lo que pueden ejecutarse desde la raíz o desde `notebooks/`. La primera ejecución de los notebooks 03 y 04 tarda alrededor de un minuto porque lee y tokeniza los 1.000 documentos.
 
 ## Autor
 
